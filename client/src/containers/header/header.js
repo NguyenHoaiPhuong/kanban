@@ -4,7 +4,7 @@ class Header extends Component {
     render() {
         return (
             <div>
-                Task Management                
+                Task Management
             </div>
         )
     }

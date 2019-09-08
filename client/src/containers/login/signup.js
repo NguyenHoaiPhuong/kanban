@@ -89,9 +89,20 @@ export default function Signup() {
                             autoComplete="current-password"
                         />
 
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="retypepassword"
+                            label="Re-type Password"
+                            type="password"
+                            id="retypepassword"
+                        />
+
                         <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
+                            control={<Checkbox value="confirm" color="primary" />}
+                            label="I want to receive information, market promotions and updates via email"
                         />
 
                         <Button
