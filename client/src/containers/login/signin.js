@@ -35,7 +35,6 @@ export default function Signin(props) {
     }
 
     useEffect(() => {
-        alert('Signin useEffect')
         if (localStorage.getItem('user') != null) {
             props.history.replace('/')
         }
