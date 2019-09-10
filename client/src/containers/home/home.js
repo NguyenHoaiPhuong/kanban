@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect } from 'react'
 
 
 import AppBar from '@material-ui/core/AppBar';
@@ -15,8 +15,7 @@ import Popper from '@material-ui/core/Popper';
 
 import useStyles from './styles'
 
-
-export default function Home() {
+export default function Home(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
@@ -32,6 +31,12 @@ export default function Home() {
 
         setOpen(false);
     }
+
+    useEffect(() => {
+        if (localStorage.getItem('user') === null) {
+            props.history.replace('/signin')
+        }
+    }, []);
 
     return (
         <div className={classes.root}>

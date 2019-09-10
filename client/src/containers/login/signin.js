@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react'
+
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -15,85 +16,107 @@ import Typography from '@material-ui/core/Typography';
 import Copyright from './copyright'
 import useStyles from './styles'
 
-export default function Signin() {
-  const classes = useStyles();
+export default function Signin(props) {
+    const classes = useStyles();
 
-  return (
-    <Grid container component="main" className={classes.root}>
-        <CssBaseline />
+    function handleSigninSubmit(event) {
+        event.preventDefault();
 
-        <Grid item xs={false} sm={4} md={7} className={classes.image} />
+        let user = {
+            name: event.target.username.value,
+            password: event.target.password.value
+        }
 
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon />
-                </Avatar>
+        // Fake authentication
+        if (user.name === 'admin' && user.password === 'admin') {
+            localStorage.setItem('user', user)
+            props.history.replace('/')
+        }
+    }
 
-                <Typography component="h1" variant="h5">
-                    Sign in
-                </Typography>
+    useEffect(() => {
+        alert('Signin useEffect')
+        if (localStorage.getItem('user') != null) {
+            props.history.replace('/')
+        }
+    }, []);
 
-                <form className={classes.form} noValidate>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        autoComplete="email"
-                        autoFocus
-                    />
+    return (
+        <Grid container component="main" className={classes.root}>
+            <CssBaseline />
 
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                    />
+            <Grid item xs={false} sm={4} md={7} className={classes.image} />
 
-                    <FormControlLabel
-                        control={<Checkbox value="remember" color="primary" />}
-                        label="Remember me"
-                    />
+            <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                <div className={classes.paper}>
+                    <Avatar className={classes.avatar}>
+                        <LockOutlinedIcon />
+                    </Avatar>
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Sign In
-                    </Button>
+                    <Typography component="h1" variant="h5">
+                        Sign in
+                    </Typography>
 
-                    <Grid container>
-                        <Grid item xs>
-                            <Link href="#" variant="body2">
-                                Forgot password?
-                            </Link>
+                    <form className={classes.form} noValidate onSubmit={handleSigninSubmit}>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="username"
+                            label="User Name or Email Address"
+                            name="username"
+                            autoComplete="username"
+                            autoFocus
+                        />
+
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+
+                        <FormControlLabel
+                            control={<Checkbox value="remember" color="primary" />}
+                            label="Remember me"
+                        />
+
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Sign In
+                        </Button>
+
+                        <Grid container>
+                            <Grid item xs>
+                                <Link href="#" variant="body2">
+                                    Forgot password?
+                                </Link>
+                            </Grid>
+
+                            <Grid item>
+                                <Link href="/signup" variant="body2">
+                                    {"Don't have an account? Sign Up"}
+                                </Link>
+                            </Grid>
                         </Grid>
 
-                        <Grid item>
-                            <Link href="/signup" variant="body2">
-                                {"Don't have an account? Sign Up"}
-                            </Link>
-                        </Grid>
-                    </Grid>
-
-                    <Box mt={5}>
-                        <Copyright />
-                    </Box>
-                </form>
-            </div>
+                        <Box mt={5}>
+                            <Copyright />
+                        </Box>
+                    </form>
+                </div>
+            </Grid>
         </Grid>
-    </Grid>
-  );
+    );
 }
