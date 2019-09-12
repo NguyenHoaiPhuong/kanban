@@ -1,0 +1,6 @@
+{
+    "mongodbServerHost": "localhost",
+    "mongodbServerPort": "27017",
+    "mongodbServerUsername": "",
+    "mongodbServerPassword": ""
+}
