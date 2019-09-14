@@ -1,13 +1,9 @@
 package mongodb
 
-package simcel
-
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
-	"strconv"
 	"strings"
 
 	a "github.com/logrusorgru/aurora"
@@ -18,14 +14,14 @@ import (
 )
 
 // DropDatabase : drop the specific database from server host
-func DropDatabase(ctx *context, client *mongo.Client, dbName string) {
+func DropDatabase(ctx context.Context, client *mongo.Client, dbName string) {
 	db := client.Database(dbName)
 	db.Drop(ctx)
 }
 
 // DropCollection : drop the specific collection from database
-func DropCollection(ctx *context, db *mongo.Database, colName string) error {
-	if mongoCheckCollectionExist(db, colName) {
+func DropCollection(ctx context.Context, db *mongo.Database, colName string) error {
+	if CheckCollectionExist(ctx, db, colName) {
 		err := db.Collection(colName).Drop(ctx)
 		return err
 	}
@@ -33,7 +29,7 @@ func DropCollection(ctx *context, db *mongo.Database, colName string) error {
 }
 
 // GetDBWithSubname : get all database names in the server host which contain subname
-func GetDBWithSubname(ctx *context, client *mongo.Client, subName string) ([]string, error) {
+func GetDBWithSubname(ctx context.Context, client *mongo.Client, subName string) ([]string, error) {
 	dbNames, err := client.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		return nil, err
@@ -54,7 +50,7 @@ func GetDBWithSubname(ctx *context, client *mongo.Client, subName string) ([]str
 // CreateClient returns client respective to the given server host and port
 // Refer to following link for more details of authentication
 // https://docs.mongodb.com/manual/reference/connection-string/
-func CreateClient(ctx *context, serverHost, serverPort, username, password, dbName string) (*mongo.Client, error) {
+func CreateClient(ctx context.Context, serverHost, serverPort, username, password, dbName string) (*mongo.Client, error) {
 	connMsg := generateMongoConnectionURI(serverHost, serverPort, username, password, dbName)
 	clientOptions := options.Client().ApplyURI(connMsg)
 	client, err := mongo.NewClient(clientOptions)
@@ -69,7 +65,7 @@ func CreateClient(ctx *context, serverHost, serverPort, username, password, dbNa
 }
 
 // ConnectToDB returns db respective to the given server host, port and db name
-func ConnectToDB(ctx *context, serverHost, serverPort, dbName string) (*mongo.Database, error) {
+func ConnectToDB(ctx context.Context, serverHost, serverPort, dbName string) (*mongo.Database, error) {
 	client, err := CreateClient(ctx, serverHost, serverPort, "", "", "")
 	if err != nil {
 		return nil, err
@@ -78,7 +74,7 @@ func ConnectToDB(ctx *context, serverHost, serverPort, dbName string) (*mongo.Da
 }
 
 // CheckCollectionExist will check if the given collection name is present in the database names set
-func CheckCollectionExist(ctx *context, db *mongo.Database, collectionName string) bool {
+func CheckCollectionExist(ctx context.Context, db *mongo.Database, collectionName string) bool {
 	names, err := db.ListCollectionNames(ctx, bson.M{})
 	if err != nil {
 		return false
@@ -92,7 +88,7 @@ func CheckCollectionExist(ctx *context, db *mongo.Database, collectionName strin
 }
 
 // CheckCollectionHasIndex will check if the given filed in given collection is indexed or not
-func CheckCollectionHasIndex(ctx *context, db *mongo.Database, collectionName string, indexedFieldName string) bool {
+func CheckCollectionHasIndex(ctx context.Context, db *mongo.Database, collectionName string, indexedFieldName string) bool {
 	indexView := db.Collection(collectionName).Indexes()
 	curIndex, err := indexView.List(ctx)
 	defer curIndex.Close(ctx)
@@ -119,14 +115,14 @@ func CheckCollectionHasIndex(ctx *context, db *mongo.Database, collectionName st
 }
 
 // RemoveIndex : drop index
-func RemoveIndex(ctx *context, db *mongo.Database, collectionName string, indexedFieldName string) error {
+func RemoveIndex(ctx context.Context, db *mongo.Database, collectionName string, indexedFieldName string) error {
 	indexView := db.Collection(collectionName).Indexes()
 	_, err := indexView.DropOne(ctx, indexedFieldName)
 	return err
 }
 
 // CheckIndexExistOrCreateIt will check for database index existing, output a message if not and then proceed to creating it
-func CheckIndexExistOrCreateIt(ctx *context, db *mongo.Database, collectionName string, 
+func CheckIndexExistOrCreateIt(ctx context.Context, db *mongo.Database, collectionName string,
 	indexedFieldName string, msgIfNotExist a.Value) error {
 	if CheckCollectionExist(ctx, db, collectionName) && CheckCollectionHasIndex(ctx, db, collectionName, indexedFieldName) == false {
 		fmt.Println(msgIfNotExist)
@@ -141,9 +137,11 @@ func CheckIndexExistOrCreateIt(ctx *context, db *mongo.Database, collectionName 
 }
 
 // WriteToDB : save data onto mongodb
-func WriteToDB(ctx *context, db *mongo.Database, colName string, object interface{}, writingMethod MongoWritingMethod) error {
+func WriteToDB(ctx context.Context, db *mongo.Database, colName string,
+	object interface{}, batchLimit int, writingMethod MongoWritingMethod) error {
+	var err error
 	if CheckCollectionExist(ctx, db, colName) {
-		err := DropCollection(ctx, db, colName)
+		err = DropCollection(ctx, db, colName)
 		if err != nil {
 			return err
 		}
@@ -151,146 +149,39 @@ func WriteToDB(ctx *context, db *mongo.Database, colName string, object interfac
 	bulk := &BulkCollection{items: object, collectionName: colName}
 	switch writingMethod {
 	case INSERTMANY:
-		bulk.mongoInsertManyTo(db)
+		err = bulk.InsertManyTo(db, batchLimit)
 	case BULKWRITE:
-		bulk.mongoBulkWriteTo(db)
+		err = bulk.BulkWriteTo(db, batchLimit)
 	}
+
+	return err
 }
 
-func mongoInsertToDB(db *mongo.Database, colName string, object interface{}, writingMethod MongoWritingMethod) {
+// InsertToDB : Insert object into the given collection
+func InsertToDB(ctx context.Context, db *mongo.Database, colName string,
+	object interface{}, batchLimit int, writingMethod MongoWritingMethod) error {
+	var err error
 	bulk := &BulkCollection{items: object, collectionName: colName}
 	switch writingMethod {
 	case INSERTMANY:
-		bulk.mongoInsertManyTo(db)
+		err = bulk.InsertManyTo(db, batchLimit)
 	case BULKWRITE:
-		bulk.mongoBulkWriteTo(db)
+		err = bulk.BulkWriteTo(db, batchLimit)
 	}
+	return err
 }
 
-func mongoInitDatabase(duplicatedDb bool, configDbName string, client *mongo.Client) (usedDb string) {
-	fmt.Println("Using network configuration database : ", configDbName)
-	biggestRunNbr := 0
-	dbExist := false
-
-	options := options.Find()
-	options.SetSort(bson.D{{"DB_ID", -1}})
-	options.SetLimit(1)
-	result := bson.M{}
-	ctx := context.Background()
-	runResults := client.Database("simulation_config").Collection("run_result_dbs")
-	cursor, err := runResults.Find(ctx, bson.M{"configDbName": configDbName}, options)
-	CheckErr(err)
-	defer cursor.Close(ctx)
-	cursor.Next(ctx)
-	err = cursor.Decode(&result)
-	if err != nil {
-		fmt.Println("could not retrieve latest simulation result database, will create default one")
-	} else {
-		if casted, ok := result["DB_ID"]; ok {
-			dbExist = true
-			num := casted.(int32)
-			biggestRunNbr = int(num)
-			fmt.Println("Latest run result database ID : ", biggestRunNbr)
-		} else {
-			fmt.Println(casted, ok)
-			fmt.Println(result)
-			log.Fatal(ok)
-		}
-	}
-
-	if duplicatedDb || !dbExist {
-		biggestRunNbr++
-		runResults.InsertOne(context.Background(), bson.M{"configDbName": configDbName, "DB_ID": biggestRunNbr})
-	}
-
-	usedDbName := configDbName + RESULT_DB_SUFFIX + strconv.Itoa(biggestRunNbr)
-	// We should create a new DB either if there is no DB or if asked by params
-	eraseCurrentDb := dbExist && !duplicatedDb
-
-	if eraseCurrentDb {
-		fmt.Println("Delete database", usedDbName)
-		mongoDropDatabase(client, usedDbName)
-	}
-
-	return usedDbName
-}
-
-// installDatabse should be run once before all simulation. It will install the initial network database, along with validation (and import customer data )
-func mongoInstallDatabase(cfg *SimcelConfig) {
-	ctx := context.Background()
-
-	host := *cfg.mongodbServerHost
-	port := *cfg.mongodbServerPort
-	dbName := "simulation_config"
-	db := mongoConnectToDB(host, port, dbName)
-
-	colName := "runs"
-	if !mongoCheckCollectionExist(db, colName) {
-		res := db.RunCommand(ctx, bson.M{
-			"create": "runs",
-		}, nil)
-
-		CheckErr(res.Err())
-	}
-
-	dbName = "simulation_runs"
-	db = mongoConnectToDB(host, port, dbName)
-	if !mongoCheckCollectionExist(db, colName) {
-		res := db.RunCommand(ctx, bson.M{
-			"create": "runs",
-		}, nil)
-
-		CheckErr(res.Err())
-	}
-}
-
-func (scDesc *SCModelDescriptor) mongoSaveToDatabase(db *mongo.Database, collectionName string, SCModelsMaps map[string]map[ISCModel]ISCModel, writingMethod MongoWritingMethod) {
-	typeName := reflect.TypeOf(scDesc.mod).Elem().Name()
-
-	total := len(SCModelsMaps[typeName])
-
-	toInsert := make([]interface{}, total)
-	i := 0
-	for _, scModel := range SCModelsMaps[typeName] {
-		toInsert[i] = scModel
-		i++
-	}
-	bulk := &BulkCollection{items: toInsert, collectionName: collectionName}
-	switch writingMethod {
-	case INSERTMANY:
-		bulk.mongoInsertManyTo(db)
-	case BULKWRITE:
-		bulk.mongoBulkWriteTo(db)
-	}
-}
-
-func mongoCheckAllTransactionnalCollectionHaveIndexes(client *mongo.Client, dbName string) {
-	msg := a.BrightYellow("|||||||||||| InventoryAdjustment database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	err := mongoCheckIndexExistOrCreateIt(client.Database(dbName), string(InventoryAdjustmentCol), "Date", msg)
-	CheckErr(err)
-	msg = a.BrightYellow("|||||||||||| CustomerDemand database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	err = mongoCheckIndexExistOrCreateIt(client.Database(dbName), string(CustomerDemandCol), "Date", msg)
-	CheckErr(err)
-	msg = a.BrightYellow("|||||||||||| ReplayDeliveryOrders database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	err = mongoCheckIndexExistOrCreateIt(client.Database(dbName), string(ReplayDeliveryOrderCol), "Date", msg)
-	CheckErr(err)
-	msg = a.BrightYellow("|||||||||||| ReplayReplenishSOs database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	err = mongoCheckIndexExistOrCreateIt(client.Database(dbName), string(ReplayReplenishSOCol), "Date", msg)
-	CheckErr(err)
-	msg = a.BrightYellow("|||||||||||| ReplayProduction database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	err = mongoCheckIndexExistOrCreateIt(client.Database(dbName), string(ReplayProductionCol), "Date", msg)
-	CheckErr(err)
-}
-
-// mongoCollectionIsSubsetOf : compare data in col1 to data in col2.
+// CollectionIsSubsetOf : compare data in col1 to data in col2.
 // If all data in col1 can be found in col2, the function returns true.
-func mongoCollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
+func CollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
 	var expectedResults []bson.D
 	ctx := context.Background()
 	opts := options.Find()
-	opts.SetSort(bson_mongo.D{{"Date", 1}})
+	opts.SetSort(bson.D{{"Date", 1}})
 	cursor, err := col1.Find(ctx, bson.D{{}}, opts)
-	CheckErr(err)
+	if err != nil {
+		return false
+	}
 	cursor.All(ctx, &expectedResults)
 	cursor.Close(ctx)
 	for _, expectedResultEntry := range expectedResults {
@@ -301,17 +192,12 @@ func mongoCollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
 			t := reflect.TypeOf(expectedResultEntryField.Value)
 			expectedResultsFieldType := v.Kind()
 			if expectedResultEntryField.Value != nil && !isZero(v) {
-				printIfVerbose("expected result field :", expectedResultEntryField)
-				if expectedResultEntryField.Key != "_id" &&
-					expectedResultEntryField.Key != "ID" &&
-					expectedResultEntryField.Key != "appliedsegments" &&
-					expectedResultEntryField.Key != "kpis" &&
-					expectedResultEntryField.Key != "inputmodel" &&
-					expectedResultEntryField.Key != "BatchID" {
-					printIfVerbose(expectedResultEntryField.Key, "--> Used")
+				fmt.Println("expected result field :", expectedResultEntryField)
+				if expectedResultEntryField.Key != "_id" {
+					fmt.Println(expectedResultEntryField.Key, "--> Used")
 					switch expectedResultsFieldType {
 					case reflect.Func, reflect.Map:
-						printIfVerbose("skiping unsupported expected data field : ", expectedResultEntryField.Key)
+						fmt.Println("skiping unsupported expected data field :", expectedResultEntryField.Key)
 					case reflect.Array, reflect.Slice:
 						isEmbeddedArray := false
 						embeddedArrayLength := 0
@@ -345,7 +231,7 @@ func mongoCollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
 											},
 										})
 									} else {
-										panic("unsupported embedded array element, support only structure (not simple types)")
+										fmt.Println("unsupported embedded array element, support only structure (not simple types)")
 									}
 								}
 							}
@@ -360,7 +246,7 @@ func mongoCollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
 						}
 
 					case reflect.Struct:
-						printIfVerbose("skiping unsupported expected data field : ", expectedResultEntryField.Key)
+						fmt.Println("skiping unsupported expected data field : ", expectedResultEntryField.Key)
 					default:
 						finalFieldsQuery = append(finalFieldsQuery, expectedResultEntryField)
 					}
@@ -371,11 +257,13 @@ func mongoCollectionIsSubsetOf(col1, col2 *mongo.Collection) bool {
 			continue
 		}
 
-		printIfVerbose("Filter : ", finalFieldsQuery)
+		fmt.Println("Filter : ", finalFieldsQuery)
 		var foundResults []bson.D
 
 		cur, err := col2.Find(ctx, finalFieldsQuery)
-		CheckErr(err)
+		if err != nil {
+			return false
+		}
 		cur.All(ctx, &foundResults)
 		if len(foundResults) == 0 {
 			fmt.Printf("Could not find expected results for collection %s in collection %s.\n", col1.Name(), col2.Name())
