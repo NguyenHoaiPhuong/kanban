@@ -1,6 +1,7 @@
 {
-    "mongodbServerHost": "localhost",
-    "mongodbServerPort": "27017",
-    "mongodbServerUsername": "",
-    "mongodbServerPassword": ""
+    "ServerHost": "localhost",
+    "ServerPort": "27017",
+    "ServerUsername": "",
+    "ServerPassword": "",
+    "DatabaseName": "ITV"
 }
