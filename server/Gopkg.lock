@@ -14,10 +14,22 @@
   revision = "ff6b7dc882cf4cfba7ee0b9f7dcc1ac096c554aa"
 
 [[projects]]
+  name = "github.com/hashicorp/hcl"
+  packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
+  revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/logrusorgru/aurora"
   packages = ["."]
   revision = "21d75270181e0436fee7bd58b991c212cf309068"
   version = "v2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/paked/configure"
+  packages = ["."]
+  revision = "28f9c3f21a4454ca2e6ae1358856c6908293a46f"
 
 [[projects]]
   branch = "master"
@@ -58,6 +70,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c08852f4d52b913ebfd1227cbf9ed322a2fae3c699e1362dbb3fbd71ad6bd652"
+  inputs-digest = "6927b1342daa53ea469c46becfac3274266b68ba3057bf5f71ceb0aa67f3d6c1"
   solver-name = "gps-cdcl"
   solver-version = 1

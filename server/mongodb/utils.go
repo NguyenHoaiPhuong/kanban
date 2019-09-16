@@ -17,7 +17,10 @@ func generateMongoConnectionURI(serverHost, serverPort, username, password, dbNa
 	if username != "" && password != "" {
 		connectionURI = username + ":" + password + "@" + serverHost
 	}
-	connectionURI = "mongodb://" + connectionURI + ":" + serverPort + "/" + dbName + "?authSource=admin"
+	connectionURI = "mongodb://" + connectionURI + ":" + serverPort
+	if dbName != "" {
+		connectionURI = connectionURI + "/" + dbName + "?authSource=admin"
+	}
 	return connectionURI
 }
 

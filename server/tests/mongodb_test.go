@@ -4,12 +4,26 @@ import (
 	"context"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/NguyenHoaiPhuong/kanban/server/mongodb"
+	a "github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// Demand struct
+type Demand struct {
+	Date        time.Time `json:"Date" bson:"Date" required:"true"`
+	CustomerRef string    `json:"CustomerRef" bson:"CustomerRef" required:"true"`
+	ProductID   string    `json:"ProductID" bson:"ProductID" required:"true"`
+	Quantity    float64   `json:"Quantity" bson:"Quantity" required:"true"`
+	Unit        string    `json:"Unit" bson:"Unit" required:"true"`
+}
+
+// Demands : slice of demands
+type Demands []*Demand
 
 func initMongoTestDB(dbName string) *mongo.Database {
 	serverHost := "localhost"
@@ -37,16 +51,27 @@ func TestDropCollection(t *testing.T) {
 }
 
 func TestDropDatabase(t *testing.T) {
+	ctx := context.Background()
+
 	serverHost := "localhost"
 	serverPort := "27017"
-	client := mongoCreateClient(serverHost, serverPort)
+	client, err := mongodb.CreateClient(ctx, serverHost, serverPort, "", "", "")
+	if err != nil {
+		t.Error("CreateClient Error:", err)
+	}
 
 	subName := "test_2"
-	dbNames := mongoGetDBWithSubname(client, subName)
-	for _, dbName := range dbNames {
-		mongoDropDatabase(client, dbName)
+	dbNames, err := mongodb.GetDBWithSubname(ctx, client, subName)
+	if err != nil {
+		t.Error("GetDBWithSubname Error:", err)
 	}
-	dbNames = mongoGetDBWithSubname(client, subName)
+	for _, dbName := range dbNames {
+		mongodb.DropDatabase(ctx, client, dbName)
+	}
+	dbNames, err = mongodb.GetDBWithSubname(ctx, client, subName)
+	if err != nil {
+		t.Error("GetDBWithSubname Error:", err)
+	}
 	if len(dbNames) > 0 {
 		for _, dbName := range dbNames {
 			t.Errorf("Error: database %s WASN'T deleted", dbName)
@@ -55,43 +80,49 @@ func TestDropDatabase(t *testing.T) {
 }
 
 func TestCheckCollectionExist(t *testing.T) {
+	ctx := context.Background()
+
 	dbName := "random_test_1"
 	db := initMongoTestDB(dbName)
 	colName := "CustomerDemand"
-	if !mongoCheckCollectionExist(db, colName) {
+	if !mongodb.CheckCollectionExist(ctx, db, colName) {
 		t.Errorf("Error: Collection %s exists in the db %s\n", colName, dbName)
 	}
 
 	colName = "CustomerDemand11"
-	if mongoCheckCollectionExist(db, colName) {
+	if mongodb.CheckCollectionExist(ctx, db, colName) {
 		t.Errorf("Error: Collection %s DOES NOT exist in the db %s\n", colName, dbName)
 	}
 }
 
 func TestCheckIndexExistOrCreateIt(t *testing.T) {
+	ctx := context.Background()
+
 	dbName := "random_test_1"
 	db := initMongoTestDB(dbName)
 	colName := "CustomerDemand"
 	fieldName := "Date"
-	mongoRemoveIndex(db, colName, fieldName)
+	mongodb.RemoveIndex(ctx, db, colName, fieldName)
 	msg := a.BrightYellow("|||||||||||| CustomerDemand database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	if err := mongoCheckIndexExistOrCreateIt(db, colName, fieldName, msg); err != nil {
+	if err := mongodb.CheckIndexExistOrCreateIt(ctx, db, colName, fieldName, msg); err != nil {
 		t.Errorf("Error: Cannot create index for field %s in collection %s in the db %s\n", fieldName, colName, dbName)
 	}
 }
 
 func TestCheckCollectionHasIndex(t *testing.T) {
+	ctx := context.Background()
+
 	dbName := "random_test_1"
 	db := initMongoTestDB(dbName)
 
 	colName := "CustomerDemand"
 	fieldName := "Date"
-	if !mongoCheckCollectionHasIndex(db, colName, fieldName) {
+	if !mongodb.CheckCollectionHasIndex(ctx, db, colName, fieldName) {
 		t.Errorf("Error: Collection %s in the db %s has indexed field %s\n", colName, dbName, fieldName)
 	}
 
 	fieldName = "CustomerRef"
-	if mongoCheckCollectionHasIndex(db, colName, fieldName) {
+	if mongodb.CheckCollectionHasIndex(ctx, db, colName, fieldName) {
 		t.Errorf("Error: Collection %s in the db %s has NO indexed field %s\n", colName, dbName, fieldName)
 	}
 }
@@ -109,7 +140,9 @@ func TestReadWriteDatabase(t *testing.T) {
 	opts.SetSort(bson.D{{"Date", 1}})
 	demands := make(Demands, 0)
 	cursor, err := col.Find(ctx, filter, opts)
-	CheckErr(err)
+	if err != nil {
+		t.Error(err)
+	}
 	cursor.All(ctx, &demands)
 
 	currentTime := demands[0].Date.UTC()
@@ -125,15 +158,15 @@ func TestReadWriteDatabase(t *testing.T) {
 	newDBName := dbName + "_save"
 	db = initMongoTestDB(newDBName)
 	newColName := colName + "_BULKWRITE"
-	mongoWriteToDB(db, newColName, demands, BULKWRITE)
+	mongodb.WriteToDB(ctx, db, newColName, demands, 100, mongodb.BULKWRITE)
 	col1 := db.Collection(newColName)
-	if !mongoCollectionIsSubsetOf(col, col1) || !mongoCollectionIsSubsetOf(col1, col) {
+	if !mongodb.CollectionIsSubsetOf(col, col1) || !mongodb.CollectionIsSubsetOf(col1, col) {
 		t.Errorf("mongo-driver BULKWRITE error.")
 	}
 	newColName = colName + "_INSERTMANY"
-	mongoWriteToDB(db, newColName, demands, INSERTMANY)
+	mongodb.WriteToDB(ctx, db, newColName, demands, 100, mongodb.INSERTMANY)
 	col1 = db.Collection(newColName)
-	if !mongoCollectionIsSubsetOf(col, col1) || !mongoCollectionIsSubsetOf(col1, col) {
+	if !mongodb.CollectionIsSubsetOf(col, col1) || !mongodb.CollectionIsSubsetOf(col1, col) {
 		t.Errorf("mongo-driver INSERTMANY error.")
 	}
 }
