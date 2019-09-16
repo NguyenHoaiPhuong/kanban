@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"random_test_3.CustomerDemand"},{"v":2,"key":{"Date":1},"name":"Date_1","ns":"random_test_3.CustomerDemand","background":true}],"uuid":"c3db4d1a54ba4876b0e2b96e168e2c62"}

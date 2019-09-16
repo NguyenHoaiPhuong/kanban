@@ -24,7 +24,7 @@ func initMongoTestDB(dbName string) *mongo.Database {
 }
 
 func TestDropCollection(t *testing.T) {
-	dbName := "scenario_1_1_B_1"
+	dbName := "random_test_1"
 	db := initMongoTestDB(dbName)
 
 	colName := "FacilityMaster"
@@ -41,20 +41,8 @@ func TestDropDatabase(t *testing.T) {
 	serverPort := "27017"
 	client := mongoCreateClient(serverHost, serverPort)
 
-	subName := "scenario_"
+	subName := "test_2"
 	dbNames := mongoGetDBWithSubname(client, subName)
-	for _, dbName := range dbNames {
-		mongoDropDatabase(client, dbName)
-	}
-	dbNames = mongoGetDBWithSubname(client, subName)
-	if len(dbNames) > 0 {
-		for _, dbName := range dbNames {
-			t.Errorf("Error: database %s WASN'T deleted", dbName)
-		}
-	}
-
-	subName = "Injected_Test_DB"
-	dbNames = mongoGetDBWithSubname(client, subName)
 	for _, dbName := range dbNames {
 		mongoDropDatabase(client, dbName)
 	}
@@ -80,6 +68,18 @@ func TestCheckCollectionExist(t *testing.T) {
 	}
 }
 
+func TestCheckIndexExistOrCreateIt(t *testing.T) {
+	dbName := "random_test_1"
+	db := initMongoTestDB(dbName)
+	colName := "CustomerDemand"
+	fieldName := "Date"
+	mongoRemoveIndex(db, colName, fieldName)
+	msg := a.BrightYellow("|||||||||||| CustomerDemand database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
+	if err := mongoCheckIndexExistOrCreateIt(db, colName, fieldName, msg); err != nil {
+		t.Errorf("Error: Cannot create index for field %s in collection %s in the db %s\n", fieldName, colName, dbName)
+	}
+}
+
 func TestCheckCollectionHasIndex(t *testing.T) {
 	dbName := "random_test_1"
 	db := initMongoTestDB(dbName)
@@ -93,18 +93,6 @@ func TestCheckCollectionHasIndex(t *testing.T) {
 	fieldName = "CustomerRef"
 	if mongoCheckCollectionHasIndex(db, colName, fieldName) {
 		t.Errorf("Error: Collection %s in the db %s has NO indexed field %s\n", colName, dbName, fieldName)
-	}
-}
-
-func TestCheckIndexExistOrCreateIt(t *testing.T) {
-	dbName := "random_test_1"
-	db := initMongoTestDB(dbName)
-	colName := "CustomerDemand"
-	fieldName := "Date"
-	mongoRemoveIndex(db, colName, fieldName)
-	msg := a.BrightYellow("|||||||||||| CustomerDemand database has no index on the date, creating index, this may take several minutes  ||||||||||||").Bold().BgBrightRed()
-	if err := mongoCheckIndexExistOrCreateIt(db, colName, fieldName, msg); err != nil {
-		t.Errorf("Error: Cannot create index for field %s in collection %s in the db %s\n", fieldName, colName, dbName)
 	}
 }
 
