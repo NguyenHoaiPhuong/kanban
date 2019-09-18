@@ -8,11 +8,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type APIUsers struct {
+// Users users api
+type Users struct {
 	API
 }
 
-func (api *APIUser) init(root *mux.Router, path string) {
+func (api *Users) init(root *mux.Router, path string) {
 	fmt.Println("Init Users API")
 	api.Router = root.PathPrefix(path).Subrouter()
 }

@@ -4,13 +4,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// APIs include all apis
 type APIs struct {
-	apiUsers APIUsers
+	users Users
 }
 
+// Init : initialize all apis
 func (apis *APIs) Init() {
 	root := mux.NewRouter()
 
-	apis.apiUsers.init(root, "/users")
-	apis.apiUsers.RegisterHandleFunction("GET", "", getAllUsers)
+	apis.users.init(root, "/users")
+	apis.users.RegisterHandleFunction("GET", "", getAllUsers)
 }

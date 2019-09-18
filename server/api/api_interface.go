@@ -1,14 +1,19 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+
+	"github.com/gorilla/mux"
+)
 
 // IAPI : interface for all APIs
-type IAPI interface {	
+type IAPI interface {
 	get(path string, f func(w http.ResponseWriter, r *http.Request))
 	post(path string, f func(w http.ResponseWriter, r *http.Request))
 	put(path string, f func(w http.ResponseWriter, r *http.Request))
 	delete(path string, f func(w http.ResponseWriter, r *http.Request))
-	options(path string, f func(w http.ResponseWriter, r *http.Request)
+	options(path string, f func(w http.ResponseWriter, r *http.Request))
 
 	init(root *mux.Router, path string)
 }
@@ -55,6 +60,6 @@ func (api *API) RegisterHandleFunction(method string, path string, f func(w http
 	case "DELETE":
 		api.delete(path, f)
 	case "OPTIONS":
-		api.authenticate(path, f)
+		api.options(path, f)
 	}
 }

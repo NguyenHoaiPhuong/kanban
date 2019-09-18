@@ -17,6 +17,7 @@ type App struct {
 // Init : initialize settings
 func (a *App) Init() {
 	a.initConfig()
+	a.initAPIs()
 }
 
 func (a *App) initConfig() {
@@ -36,4 +37,5 @@ func (a *App) initAPIs() {
 
 // Run server
 func (a *App) Run() {
+	log.Println("Run the app")
 }
