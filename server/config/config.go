@@ -6,7 +6,7 @@ import (
 
 // Config includes all configurations for the App
 type Config struct {
-	MongoDBConfig MongoConfig `json:",inline"`
+	MongoConfig
 }
 
 // MongoConfig includes configurations for Mongo
@@ -26,7 +26,7 @@ func init() {
 
 	// Default configurations
 	cf = &Config{
-		MongoDBConfig: MongoConfig{
+		MongoConfig: MongoConfig{
 			Host:     conf.String("ServerHost", "localhost", "MongoDB server host"),
 			Port:     conf.String("ServerPort", "27017", "MongoDB port"),
 			UserName: conf.String("ServerUsername", "", "MongoDB username"),

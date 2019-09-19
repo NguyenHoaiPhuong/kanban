@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -14,7 +13,7 @@ type Users struct {
 }
 
 func (api *Users) init(root *mux.Router, path string) {
-	fmt.Println("Init Users API")
+	log.Println("Init Users API")
 	api.Router = root.PathPrefix(path).Subrouter()
 }
 

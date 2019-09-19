@@ -147,7 +147,7 @@ func TestReadWriteDatabase(t *testing.T) {
 
 	currentTime := demands[0].Date.UTC()
 	for _, demand := range demands {
-		// fmt.Println(demand)
+		// log.Println(demand)
 		if currentTime.After(demand.Date.UTC()) {
 			t.Errorf("Error: sorting customer demand based on Date WRONGLY. Date %v is after date %v.", currentTime, demand.Date.UTC())
 		}

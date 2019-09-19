@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 
@@ -30,7 +30,7 @@ func (b *BulkCollection) InsertManyTo(db *mongo.Database, batchLimit int) error 
 	}
 
 	if length == 0 {
-		fmt.Println("Could not write collection", b.collectionName, "with zero item")
+		log.Println("Could not write collection", b.collectionName, "with zero item")
 		return nil
 	}
 
@@ -82,7 +82,7 @@ func (b *BulkCollection) BulkWriteTo(db *mongo.Database, batchLimit int) error {
 	opts.SetOrdered(false)
 
 	if length == 0 {
-		fmt.Println("Could not write collection ", b.collectionName, " with zero item")
+		log.Println("Could not write collection ", b.collectionName, " with zero item")
 		return nil
 	}
 
@@ -126,6 +126,6 @@ func checkErrWritingData(sentCount int, writtenCount int, colName string) {
 	if sentCount != writtenCount {
 		msg := "Number of " + string(colName) + " items written onto MongoDB: " + strconv.Itoa(writtenCount) +
 			". Number of " + string(colName) + " items expected to write onto MongoDB:" + strconv.Itoa(sentCount)
-		fmt.Println(msg)
+		log.Println(msg)
 	}
 }

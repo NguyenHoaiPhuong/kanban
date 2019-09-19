@@ -6,13 +6,14 @@ import (
 
 // APIs include all apis
 type APIs struct {
+	Root  *mux.Router
 	users Users
 }
 
 // Init : initialize all apis
 func (apis *APIs) Init() {
-	root := mux.NewRouter()
+	apis.Root = mux.NewRouter()
 
-	apis.users.init(root, "/users")
+	apis.users.init(apis.Root, "/users")
 	apis.users.RegisterHandleFunction("GET", "", getAllUsers)
 }
