@@ -31,7 +31,6 @@ func (mdb *MongoDB) Init(host, port, dbName string) {
 
 // GetAllDocuments : get all documents in the given DB and Collection
 func (mdb *MongoDB) GetAllDocuments(ctx context.Context, colName string, inMod models.IModel) (models.IModels, error) {
-	var err error
 	// Using reflection to create a slice of the required type
 	slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(inMod)), 0, 0)
 	// Using reflection to create a pointer to this slice (required arguement for mgo.All())
@@ -54,4 +53,36 @@ func (mdb *MongoDB) GetAllDocuments(ctx context.Context, colName string, inMod m
 	}
 
 	return mods, nil
+}
+
+// GetDocumentByKey gets document by given key and respective value
+func (mdb *MongoDB) GetDocumentByKey(ctx context.Context, colName string, key string, value interface{}) (models.IModel, error) {
+	var doc models.IModel
+
+	opts := options.FindOne()
+	err := mdb.DB.Collection(colName).FindOne(ctx, bson.M{key: value}, opts).Decode(&doc)
+
+	return doc, err
+}
+
+// AddDocument adds new document
+func (mdb *MongoDB) AddDocument(ctx context.Context, colName string, doc interface{}) error {
+	opts := options.InsertOne()
+	col := mdb.DB.Collection(colName)
+	_, err := col.InsertOne(ctx, doc, opts)
+	return err
+}
+
+// UpdateDocument update specific document
+func (mdb *MongoDB) UpdateDocument(ctx context.Context, colName string, mod models.IModel) error {
+	col := mdb.DB.Collection(colName)
+	_, err := col.UpdateOne(ctx, bson.M{"ID": mod.GetID()}, mod)
+	return err
+}
+
+// DeleteDocumentByKey deletes document by given key and respective value
+func (mdb *MongoDB) DeleteDocumentByKey(ctx context.Context, colName string, key string, value interface{}) error {
+	col := mdb.DB.Collection(colName)
+	_, err := col.DeleteOne(ctx, bson.M{key: value})
+	return err
 }
