@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
 
 import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
@@ -14,6 +12,9 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 
 import Copyright from './copyright'
+import NameInput from './nameInput'
+import PasswordInput from './passwordInput'
+import SubmitButton from './submitButton'
 import useStyles from './styles'
 
 export default function Signin(props) {
@@ -57,44 +58,18 @@ export default function Signin(props) {
                     </Typography>
 
                     <form className={classes.form} noValidate onSubmit={handleSigninSubmit}>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
+                        <NameInput
                             id="username"
-                            label="User Name or Email Address"
                             name="username"
+                            label="User Name or Email Address"
                             autoComplete="username"
-                            autoFocus
                         />
-
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                        />
-
+                        <PasswordInput />
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
                             label="Remember me"
                         />
-
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                        >
-                            Sign In
-                        </Button>
+                        <SubmitButton content="Sign In"/>
 
                         <Grid container>
                             <Grid item xs>
