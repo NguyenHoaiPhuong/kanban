@@ -64,7 +64,13 @@ export default function Signin(props) {
                             label="User Name or Email Address"
                             autoComplete="username"
                         />
-                        <PasswordInput />
+                        <PasswordInput
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete={true}
+                        />
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
                             label="Remember me"
