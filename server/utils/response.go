@@ -7,8 +7,12 @@ import (
 
 // RespondError writes the error messages
 func RespondError(w http.ResponseWriter, status int, messages ...string) {
+	errMsg := ""
+	for _, msg := range messages {
+		errMsg += msg + "."
+	}
 	w.WriteHeader(status)
-	w.Write([]byte(messages))
+	w.Write([]byte(errMsg))
 }
 
 // RespondJSON writes the object

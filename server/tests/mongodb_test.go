@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/NguyenHoaiPhuong/kanban/server/mongodb"
+	"github.com/NguyenHoaiPhuong/warehouse/server/mongodb"
 	a "github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

@@ -51,7 +51,7 @@ func GetDBWithSubname(ctx context.Context, client *mongo.Client, subName string)
 // Refer to following link for more details of authentication
 // https://docs.mongodb.com/manual/reference/connection-string/
 func CreateClient(ctx context.Context, serverHost, serverPort, username, password, dbName string) (*mongo.Client, error) {
-	connMsg := generateMongoConnectionURI(serverHost, serverPort, username, password, dbName)
+	connMsg := GenerateMongoConnectionURI(serverHost, serverPort, username, password, dbName)
 	clientOptions := options.Client().ApplyURI(connMsg)
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {

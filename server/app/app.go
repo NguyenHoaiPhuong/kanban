@@ -2,13 +2,13 @@ package app
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
-	"github.com/NguyenHoaiPhuong/kanban/server/api"
-	"github.com/NguyenHoaiPhuong/kanban/server/config"
-	"github.com/NguyenHoaiPhuong/kanban/server/repo"
+	"github.com/NguyenHoaiPhuong/warehouse/server/api"
+	"github.com/NguyenHoaiPhuong/warehouse/server/config"
+	"github.com/NguyenHoaiPhuong/warehouse/server/log"
+	"github.com/NguyenHoaiPhuong/warehouse/server/repo"
 )
 
 // App struct
@@ -21,38 +21,42 @@ type App struct {
 // Init : initialize settings
 func (a *App) Init() {
 	a.initConfig()
-	a.initAPIs()
 	a.initRepo()
+	a.initAPIs()
 }
 
 func (a *App) initConfig() {
-	log.Println("Init config:")
+	log.Info("Init config:")
 	a.cfg = config.SetupConfig("./resources/config-dev.json")
 
-	log.Println("Host:", *a.cfg.Host)
-	log.Println("Port:", *a.cfg.Port)
-	log.Println("Database name:", *a.cfg.DBName)
+	log.Info("Host:", *a.cfg.Host)
+	log.Info("Port:", *a.cfg.Port)
+	log.Info("Database name:", *a.cfg.DBName)
 }
 
 func (a *App) initAPIs() {
-	log.Println("Initialize APIs")
+	log.Info("Initialize APIs")
 	a.apis = new(api.APIs)
 	a.apis.Init()
+
+	a.apis.User.RegisterHandleFunction("POST", "/login", a.authenticate)
+	a.apis.User.RegisterHandleFunction("OPTIONS", "/login", a.enableCORS)
+	// a.apis.User.RegisterHandleFunction("OPTIONS", "/", a.enableCORS)
 }
 
 func (a *App) initRepo() {
-	log.Println("Initialize MongoDB")
+	log.Info("Initialize MongoDB")
 	a.mdb = new(repo.MongoDB)
-	a.mdb.Init(*a.cfg.Host, *a.cfg.Port, *a.cfg.DBName)
+	a.mdb.Init(*a.cfg.Host, *a.cfg.Port, *a.cfg.UserName, *a.cfg.Password, *a.cfg.DBName)
 }
 
 // Run server
 func (a *App) Run() {
-	log.Println("Run the app on port 9001")
+	log.Info("Run the app on port 5000")
 
 	srv := &http.Server{
 		Handler:      a.apis.Root,
-		Addr:         ":9001",
+		Addr:         ":5000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

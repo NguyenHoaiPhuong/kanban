@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   name = "github.com/go-stack/stack"
   packages = ["."]
   revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
@@ -26,6 +32,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
+
+[[projects]]
   name = "github.com/logrusorgru/aurora"
   packages = ["."]
   revision = "21d75270181e0436fee7bd58b991c212cf309068"
@@ -36,6 +48,24 @@
   name = "github.com/paked/configure"
   packages = ["."]
   revision = "28f9c3f21a4454ca2e6ae1358856c6908293a46f"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
+
+[[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
 
 [[projects]]
   branch = "master"
@@ -68,6 +98,12 @@
   revision = "cd5d95a43a6e21273425c7ae415d3df9ea832eeb"
 
 [[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "c1f44814a5cd81a6d1cb589ef1e528bc5d305e07"
+
+[[projects]]
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
@@ -76,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "876baa794a42dca637aaa3ca1e78851e06485ca15c8afb862883030888ece8a7"
+  inputs-digest = "fd7df61bf4808be96c898e9f6bb21b0db5ee030db02255c56b2b47bbf78a1ffc"
   solver-name = "gps-cdcl"
   solver-version = 1

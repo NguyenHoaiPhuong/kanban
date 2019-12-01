@@ -63,3 +63,7 @@ func (api *API) RegisterHandleFunction(method string, path string, f func(w http
 		api.options(path, f)
 	}
 }
+
+func (api *API) init(root *mux.Router, path string) {
+	api.Router = root.PathPrefix(path).Subrouter()
+}

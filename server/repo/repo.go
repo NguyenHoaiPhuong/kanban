@@ -5,8 +5,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/NguyenHoaiPhuong/kanban/server/models"
-	"github.com/NguyenHoaiPhuong/kanban/server/mongodb"
+	"github.com/NguyenHoaiPhuong/warehouse/server/models"
+	"github.com/NguyenHoaiPhuong/warehouse/server/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -19,9 +19,9 @@ type MongoDB struct {
 }
 
 // Init : initialize MongoDB
-func (mdb *MongoDB) Init(host, port, dbName string) {
+func (mdb *MongoDB) Init(serverHost, serverPort, username, password, dbName string) {
 	ctx := context.Background()
-	client, err := mongodb.CreateClient(ctx, host, port, "", "", "")
+	client, err := mongodb.CreateClient(ctx, serverHost, serverPort, username, password, dbName)
 	if err != nil {
 		log.Fatalln("Init MongoDB Error:", err)
 	}
@@ -56,13 +56,16 @@ func (mdb *MongoDB) GetAllDocuments(ctx context.Context, colName string, inMod m
 }
 
 // GetDocumentByKey gets document by given key and respective value
-func (mdb *MongoDB) GetDocumentByKey(ctx context.Context, colName string, key string, value interface{}) (models.IModel, error) {
-	var doc models.IModel
-
+func (mdb *MongoDB) GetDocumentByKey(ctx context.Context, colName string, modType reflect.Type, key string, value interface{}) (models.IModel, error) {
+	var mod models.IModel
+	modPtr := reflect.New(modType)
 	opts := options.FindOne()
-	err := mdb.DB.Collection(colName).FindOne(ctx, bson.M{key: value}, opts).Decode(&doc)
-
-	return doc, err
+	err := mdb.DB.Collection(colName).FindOne(ctx, bson.M{key: value}, opts).Decode(modPtr.Interface())
+	if err != nil {
+		return nil, err
+	}
+	mod = modPtr.Interface().(models.IModel)
+	return mod, nil
 }
 
 // AddDocument adds new document

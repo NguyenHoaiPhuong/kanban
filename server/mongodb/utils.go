@@ -12,7 +12,8 @@ const (
 	BULKWRITE MongoWritingMethod = "BulkWrite"
 )
 
-func generateMongoConnectionURI(serverHost, serverPort, username, password, dbName string) string {
+// GenerateMongoConnectionURI : generate connecting url with authentication
+func GenerateMongoConnectionURI(serverHost, serverPort, username, password, dbName string) string {
 	connectionURI := serverHost
 	if username != "" && password != "" {
 		connectionURI = username + ":" + password + "@" + serverHost
