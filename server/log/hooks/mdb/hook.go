@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/log/hooks"
-	"github.com/NguyenHoaiPhuong/warehouse/server/mongodb"
+	"github.com/NguyenHoaiPhuong/kanban/server/log/hooks"
+	"github.com/NguyenHoaiPhuong/kanban/server/mongodb"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 )

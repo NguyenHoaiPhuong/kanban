@@ -14,14 +14,13 @@ const (
 
 // GenerateMongoConnectionURI : generate connecting url with authentication
 func GenerateMongoConnectionURI(serverHost, serverPort, username, password, dbName string) string {
-	connectionURI := serverHost
-	if username != "" && password != "" {
-		connectionURI = username + ":" + password + "@" + serverHost
+	connectionURI := ""
+	if username != "" && password != "" && dbName != "" {
+		connectionURI = "mongodb://" + username + ":" + password + "@" + serverHost + ":" + serverPort + "/" + dbName + "?authSource=admin"
+	} else {
+		connectionURI = "mongodb://" + connectionURI + ":" + serverPort
 	}
-	connectionURI = "mongodb://" + connectionURI + ":" + serverPort
-	if dbName != "" {
-		connectionURI = connectionURI + "/" + dbName + "?authSource=admin"
-	}
+
 	return connectionURI
 }
 

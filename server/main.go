@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/NguyenHoaiPhuong/warehouse/server/app"
-	"github.com/NguyenHoaiPhuong/warehouse/server/log"
+	"github.com/NguyenHoaiPhuong/kanban/server/app"
+	"github.com/NguyenHoaiPhuong/kanban/server/log"
 )
 
 func init() {

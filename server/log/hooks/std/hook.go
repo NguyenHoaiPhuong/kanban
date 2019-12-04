@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/log/hooks"
+	"github.com/NguyenHoaiPhuong/kanban/server/log/hooks"
 	"github.com/sirupsen/logrus"
 )
 

@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 
-	mdbHook "github.com/NguyenHoaiPhuong/warehouse/server/log/hooks/mdb"
+	mdbHook "github.com/NguyenHoaiPhuong/kanban/server/log/hooks/mdb"
 )
 
 var globalLogger *Log = nil

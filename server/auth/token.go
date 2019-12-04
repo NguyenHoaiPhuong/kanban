@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/models"
+	"github.com/NguyenHoaiPhuong/kanban/server/models"
 	"github.com/dgrijalva/jwt-go"
 )
 

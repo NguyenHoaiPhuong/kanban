@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/api"
-	"github.com/NguyenHoaiPhuong/warehouse/server/config"
-	"github.com/NguyenHoaiPhuong/warehouse/server/log"
-	"github.com/NguyenHoaiPhuong/warehouse/server/repo"
+	"github.com/NguyenHoaiPhuong/kanban/server/api"
+	"github.com/NguyenHoaiPhuong/kanban/server/config"
+	"github.com/NguyenHoaiPhuong/kanban/server/log"
+	"github.com/NguyenHoaiPhuong/kanban/server/repo"
 )
 
 // App struct
 type App struct {
-	cfg  *config.Config
+	cfg  *config.Configurations
 	apis *api.APIs
 	mdb  *repo.MongoDB
 }
@@ -27,11 +27,13 @@ func (a *App) Init() {
 
 func (a *App) initConfig() {
 	log.Info("Init config:")
-	a.cfg = config.SetupConfig("./resources/config-dev.json")
+	a.cfg = config.SetupConfig("./resources", "config-dev.json")
 
-	log.Info("Host:", *a.cfg.Host)
-	log.Info("Port:", *a.cfg.Port)
-	log.Info("Database name:", *a.cfg.DBName)
+	log.Info("Host:", a.cfg.MGOConfig.ServerHost)
+	log.Info("Port:", a.cfg.MGOConfig.ServerPort)
+	log.Info("Username:", a.cfg.MGOConfig.ServerUsername)
+	log.Info("Password:", a.cfg.MGOConfig.ServerPassword)
+	log.Info("Database name:", a.cfg.MGOConfig.DatabaseName)
 }
 
 func (a *App) initAPIs() {
@@ -47,7 +49,9 @@ func (a *App) initAPIs() {
 func (a *App) initRepo() {
 	log.Info("Initialize MongoDB")
 	a.mdb = new(repo.MongoDB)
-	a.mdb.Init(*a.cfg.Host, *a.cfg.Port, *a.cfg.UserName, *a.cfg.Password, *a.cfg.DBName)
+	a.mdb.Init(a.cfg.MGOConfig.ServerHost, a.cfg.MGOConfig.ServerPort,
+		a.cfg.MGOConfig.ServerUsername, a.cfg.MGOConfig.ServerPassword,
+		a.cfg.MGOConfig.DatabaseName)
 }
 
 // Run server

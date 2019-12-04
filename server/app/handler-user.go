@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/auth"
+	"github.com/NguyenHoaiPhuong/kanban/server/auth"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/jsonfunc"
-	"github.com/NguyenHoaiPhuong/warehouse/server/models"
-	"github.com/NguyenHoaiPhuong/warehouse/server/utils"
+	"github.com/NguyenHoaiPhuong/kanban/server/jsonfunc"
+	"github.com/NguyenHoaiPhuong/kanban/server/models"
+	"github.com/NguyenHoaiPhuong/kanban/server/utils"
 )
 
 func (a *App) authenticate(w http.ResponseWriter, r *http.Request) {

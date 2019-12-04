@@ -5,8 +5,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/NguyenHoaiPhuong/warehouse/server/models"
-	"github.com/NguyenHoaiPhuong/warehouse/server/mongodb"
+	"github.com/NguyenHoaiPhuong/kanban/server/models"
+	"github.com/NguyenHoaiPhuong/kanban/server/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

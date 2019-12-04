@@ -3,8 +3,8 @@ package log
 import (
 	"io/ioutil"
 
-	mdbHook "github.com/NguyenHoaiPhuong/warehouse/server/log/hooks/mdb"
-	stdHook "github.com/NguyenHoaiPhuong/warehouse/server/log/hooks/std"
+	mdbHook "github.com/NguyenHoaiPhuong/kanban/server/log/hooks/mdb"
+	stdHook "github.com/NguyenHoaiPhuong/kanban/server/log/hooks/std"
 
 	"github.com/sirupsen/logrus"
 )
