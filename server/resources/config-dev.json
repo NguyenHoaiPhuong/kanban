@@ -2,9 +2,9 @@
     "MGOConfig":
     {
         "ServerHost": "localhost",
-        "ServerPort": "27017",
-        "ServerUsername": "",
-        "ServerPassword": "",
+        "ServerPort": "27019",
+        "ServerUsername": "itv",
+        "ServerPassword": "itv",
         "DatabaseName": "ITV"
     }
 }

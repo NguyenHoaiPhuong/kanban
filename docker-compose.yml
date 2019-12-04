@@ -1,0 +1,66 @@
+version: '3'
+services:
+  server:
+    image: kanban_server:0.1.0
+    container_name: itv-kanban_server
+    # environment:
+    #   SERVER_DIR: ${SERVER_DIR}
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        SERVER_DIR: ${SERVER_DIR}
+    volumes:
+      - $PWD/server:${SERVER_DIR}
+      - ${SERVER_DIR}/vendor/
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    depends_on:
+      - mongo
+    command: go run main.go --ServerHost=${MDB_SERVER_HOST} --ServerPort=${MDB_SERVER_PORT} --ServerUsername=${MDB_SERVER_USERNAME} --ServerPassword=${MDB_SERVER_PASSWORD}
+    # command: ./server
+    networks:
+      - itv-network
+
+  client:
+    image: kanban_client:0.1.0
+    container_name: itv-kanban-client
+    # environment:
+    #   CLIENT_DIR: ${CLIENT_DIR}
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        CLIENT_DIR: ${CLIENT_DIR}
+    volumes:
+      - $PWD/client/public:${CLIENT_DIR}/public
+      - $PWD/client/src:${CLIENT_DIR}/src
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    expose:
+      - ${CLIENT_PORT}
+    command: serve -s build -l ${CLIENT_PORT}
+    networks:
+      - itv-network
+
+  mongo:
+    image: mongo:4.2.1
+    container_name: itv-kanban-mongo
+    ports:
+      - "${MDB_SERVER_PORT}:${MDB_SERVER_PORT}"
+    expose:
+      - ${MDB_SERVER_PORT}
+    command: mongod --port ${MDB_SERVER_PORT}
+    volumes:
+      - "$PWD/dockerdata/mongodb:/data/mongodb"
+      - "$PWD/mongodb/backup/data:/mongodb/backup/data"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: itv
+      MONGO_INITDB_ROOT_PASSWORD: itv
+    networks:
+      - itv-network
+
+networks:
+  itv-network:
