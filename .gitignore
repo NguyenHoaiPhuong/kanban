@@ -1,5 +1,13 @@
+############### Server ###############
 # ignore folder vendor
-*vendor
+vendor
 
 # dist
-*dist
+dist
+
+Gopkg.lock
+
+############### Client ###############
+node_modules
+
+main.js
