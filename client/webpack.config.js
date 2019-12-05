@@ -1,18 +1,23 @@
 const path = require('path');
 var webpack = require('webpack');
 
+const isProduction = typeof NODE_ENV !== 'undefined' && NODE_ENV === 'production';
+const mode = isProduction ? 'production' : 'development';
+const inline = isProduction ? false : true;
+
 module.exports = {
     entry: __dirname + '/src/index.tsx',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'main.js'
     },
+    target: 'web',
     devServer: {
-        inline: true,
+        inline: inline,
         contentBase: __dirname + '/dist',
         port: 9000
     },
-    mode: 'development',
+    mode: mode,
     watch: true,
     watchOptions: {
         aggregateTimeout: 300,
@@ -25,32 +30,31 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.(js|tsx|ts)$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader'
+                    loader: 'ts-loader'
                 }
             },
             {
-                test: /\.tsx$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader'
-                }
+                test: /\.(css|scss)$/,
+                use: [
+                    'style-loader',
+                    'css-loader',
+                ],
             },
             {
-                test: /\.ts$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader'
-                }
+                test: /\.(png|svg|jpg|gif)$/,
+                use: [
+                    'file-loader',
+                ],
             },
             {
-                test: /\.scss$/,
-                use: {
-                    loader: 'style-loader!css-loader!sass-loader'
-                }
-            }
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: [
+                    'file-loader',
+                ],
+            },
         ]
     },
     plugins: [

@@ -11,3 +11,5 @@ Gopkg.lock
 node_modules
 
 main.js
+
+yarn.lock
