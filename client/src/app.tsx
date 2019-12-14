@@ -7,7 +7,7 @@ import Signup from './containers/signup'
 const URLs = {
     home: '/',
     signin: '/signin',
-    signup: '/signup'
+    signup: '/signup',
 }
 
 export default class App extends React.Component {
@@ -15,9 +15,9 @@ export default class App extends React.Component {
         return (
             <Router>
                 <Switch>
-                    <Route exact path={URLs.home} component={Home} key={1}/>    
+                    <Route exact path={URLs.home} component={Home} key={1}/>
                     <Route exact path={URLs.signin} component={Signin} key={2}/>
-                    <Route exact path={URLs.signup} component={Signup} key={3}/>                                    
+                    <Route exact path={URLs.signup} component={Signup} key={3}/>
                 </Switch>
             </Router>
         )
