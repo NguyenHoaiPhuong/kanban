@@ -1,9 +1,9 @@
 import * as React from "react";
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
-import Home from './containers/home'
-import Signin from './containers/signin'
-import Signup from './containers/signup'
+import Home from './components/Home/home'
+import Signin from './components/Signin/signin'
+import Signup from './components/Signin/signup'
 
 const URLs = {
     home: '/',
@@ -11,7 +11,7 @@ const URLs = {
     signup: '/signup',
 }
 
-export const routes = (
+export const Routes = (
     <Router>
         <Switch>
             <Route exact path={URLs.home} component={Home} key={0}/>
